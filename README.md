@@ -12,7 +12,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/Maryll-castelino/TUI-CUBE-TIMER.git
+   git clone https://github.com/Maryll-castelino/T-cube-timer.git
    ```
 2. Create a python virtual environment:
    ```sh
