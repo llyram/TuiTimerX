@@ -1,60 +1,101 @@
-from textual.widgets import Placeholder
-from rich.panel import Panel
+from pyTwistyScrambler import scrambler333
+from time import monotonic
+from textual.app import App, ComposeResult
+from textual.reactive import reactive
+from textual.widgets import Static, Header, Footer, Button
+from textual.containers import Container
+from textual.events import Key
 
-from textual.app import App
-from textual.reactive import Reactive
-from textual.widget import Widget
+class ScrambleDisplay(Static):
+    """A widget to display the scramble"""
 
-from scramble import genScramble
+    scramble = scrambler333.get_WCA_scramble()
 
-class Scramble(Widget):
-
-    mouse_over = Reactive(False)
-    scramble = Reactive("[b]" + genScramble() + "[/b]")
-
-    def render(self) -> Panel:
-        return Panel(self.scramble, border_style="green" if self.mouse_over else "blue", title="Scramble")
-
-    def on_enter(self) -> None:
-        self.mouse_over = True
-
-    def on_leave(self) -> None:
-        self.mouse_over = False
-
-class Solves(Widget):
-
-    mouse_over = Reactive(False)
-
-    def render(self) -> Panel:
-        return Panel("Previous solves table", border_style="green" if self.mouse_over else "blue", title="Solves")
-
-    def on_enter(self) -> None:
-        self.mouse_over = True
-
-    def on_leave(self) -> None:
-        self.mouse_over = False
-
-class Timer(Widget):
-
-    mouse_over = Reactive(False)
-
-    def render(self) -> Panel:
-        return Panel("Timer", border_style="green" if self.mouse_over else "blue", title="Timer")
-
-    def on_enter(self) -> None:
-        self.mouse_over = True
-
-    def on_leave(self) -> None:
-        self.mouse_over = False
-
-class HoverApp(App):
-    """Demonstrates custom widgets"""
-
-    async def on_mount(self) -> None:
-        await self.view.dock(Solves(), edge="left", size=40)
-        await self.view.dock(Scramble(), Timer(), edge="top")
-        # hovers = (Hover() for _ in range(10))
-        # await self.view.dock(*hovers, edge="top")/
+    def new_scramble(self) -> None:
+        self.scramble = scrambler333.get_WCA_scramble()
+        self.update(self.scramble)
 
 
-HoverApp.run(log="textual.log")
+class Timer(Static):
+    """A widget to display time"""
+
+    start_time = reactive(monotonic)
+    time = reactive(0.0)
+    total = reactive(0.0)
+    started = reactive(False)
+
+    def on_mount(self) -> None:
+        """Event handler called when widget is added to the app."""
+        self.update_timer = self.set_interval(1 / 60, self.update_time, pause=True)
+
+
+    def update_time(self) -> None:
+        """Method to update the time to the current time."""
+        self.time = self.total + (monotonic() - self.start_time)
+
+    def watch_time(self, time: float) -> None:
+        """Called when the time attribute changes."""
+        minutes, seconds = divmod(time, 60)
+        hours, minutes = divmod(minutes, 60)
+        self.update(f"{hours:02,.0f}:{minutes:02.0f}:{seconds:05.2f}")
+
+    def start(self) -> None:
+        """Method to start (or resume) time updating."""
+        self.start_time = monotonic()
+        self.update_timer.resume()
+        self.started = True
+
+    def stop(self):
+        """Method to stop the time display updating."""
+        self.update_timer.pause()
+        self.total += monotonic() - self.start_time
+        self.time = self.total
+        self.started = False
+        
+
+    def start_stop(self):
+        if self.started :
+            self.stop()
+        else:
+            self.start()
+
+    def reset(self):
+        """Method to reset the time display to zero."""
+        self.total = 0
+        self.time = 0
+
+class Scramble(Static):
+    scramble = reactive("[b]" + scrambler333.get_WCA_scramble() + "[/b]")
+
+    def compose(self) -> ComposeResult:
+        yield ScrambleDisplay(self.scramble)
+        yield Timer("00:00")
+
+
+
+class SpeedCubeTimer(App):
+
+    CSS_PATH = "styles.css"
+    BINDINGS = [("d", "toggle_dark", "Toggle dark mode")]
+
+
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Footer()
+
+        yield Scramble()
+
+    def action_toggle_dark(self) -> None:
+        """An action to toggle dark mode."""
+        self.dark = not self.dark
+
+    def key_space(self) -> None:
+        """Event handler called when a button is pressed."""
+        time_display = self.query_one(Timer)
+        time_display.start_stop()
+        scramble_display = self.query_one(ScrambleDisplay)
+        scramble_display.new_scramble()
+
+if __name__ == "__main__":
+    app = SpeedCubeTimer()
+    app.run()

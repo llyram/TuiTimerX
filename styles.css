@@ -1,0 +1,12 @@
+ScrambleDisplay {
+    content-align: center middle;
+    dock: top;
+    height: 5;
+}
+
+Timer {
+    content-align: center middle;
+    text-opacity: 60%;
+    height: 20;
+    background: white;
+}
