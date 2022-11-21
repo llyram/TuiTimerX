@@ -2,6 +2,8 @@
 A speed cube timer inspired by cstimer right in your terminal.
 With TUI components made using textual python library.
 
+**This project is still under development**
+
 <!-- GETTING STARTED -->
 ## Getting Started
 
