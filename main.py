@@ -42,6 +42,7 @@ class Timer(Static):
     def start(self) -> None:
         """Method to start (or resume) time updating."""
         self.start_time = monotonic()
+        self.update_timer.reset()
         self.update_timer.resume()
         self.started = True
 
@@ -51,13 +52,6 @@ class Timer(Static):
         self.total += monotonic() - self.start_time
         self.time = self.total
         self.started = False
-        
-
-    def start_stop(self):
-        if self.started :
-            self.stop()
-        else:
-            self.start()
 
     def reset(self):
         """Method to reset the time display to zero."""
@@ -92,9 +86,15 @@ class SpeedCubeTimer(App):
     def key_space(self) -> None:
         """Event handler called when a button is pressed."""
         time_display = self.query_one(Timer)
-        time_display.start_stop()
-        scramble_display = self.query_one(ScrambleDisplay)
-        scramble_display.new_scramble()
+        # time_display.start_stop()
+        if time_display.started :
+            time_display.stop()
+            scramble_display = self.query_one(ScrambleDisplay)
+            scramble_display.new_scramble()
+        else:
+            time_display.reset()
+            time_display.start()
+
 
 if __name__ == "__main__":
     app = SpeedCubeTimer()

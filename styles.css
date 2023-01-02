@@ -7,6 +7,6 @@ ScrambleDisplay {
 Timer {
     content-align: center middle;
     text-opacity: 60%;
-    height: 20;
-    background: white;
+    min-height: 20;
+    /* background: white; */
 }
