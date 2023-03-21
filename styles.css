@@ -1,12 +1,32 @@
+Screen {
+    layout: grid;
+    grid-size: 12 1;
+    grid-rows: 1fr;
+    grid-columns: 1fr;
+    grid-gutter: 1;
+}
+Scramble {
+    height:100%;
+    column-span:10;
+}
 ScrambleDisplay {
     content-align: center middle;
     dock: top;
-    height: 5;
+    height: 30vh;
+    /* background: white; */
 }
 
 Timer {
     content-align: center middle;
     text-opacity: 60%;
-    min-height: 20;
-    /* background: white; */
+    height: 70vh;
+    /* background: red; */
+}
+
+#time-record {
+    /* tint: magenta 40%; */
+    tint: white 20%;
+    column-span:2;
+    height: 100%;
+    width: 100%;
 }

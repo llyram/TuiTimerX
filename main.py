@@ -2,12 +2,15 @@ from pyTwistyScrambler import scrambler333
 from time import monotonic
 from textual.app import App, ComposeResult
 from textual.reactive import reactive
-from textual.widgets import Static, Header, Footer, Button
+from textual.widgets import Static, Header, Footer, Button, DataTable
 from textual.containers import Container
 from textual.events import Key
 
+import csv
+
+
 class ScrambleDisplay(Static):
-    """A widget to display the scramble"""
+    #A widget to display the scramble#
 
     scramble = scrambler333.get_WCA_scramble()
 
@@ -17,7 +20,7 @@ class ScrambleDisplay(Static):
 
 
 class Timer(Static):
-    """A widget to display time"""
+    #A widget to display time
 
     start_time = reactive(monotonic)
     time = reactive(0.0)
@@ -25,36 +28,36 @@ class Timer(Static):
     started = reactive(False)
 
     def on_mount(self) -> None:
-        """Event handler called when widget is added to the app."""
+        #Event handler called when widget is added to the app.
         self.update_timer = self.set_interval(1 / 60, self.update_time, pause=True)
 
 
     def update_time(self) -> None:
-        """Method to update the time to the current time."""
+        #Method to update the time to the current time.
         self.time = self.total + (monotonic() - self.start_time)
 
     def watch_time(self, time: float) -> None:
-        """Called when the time attribute changes."""
+        #Called when the time attribute changes.
         minutes, seconds = divmod(time, 60)
         hours, minutes = divmod(minutes, 60)
         self.update(f"{hours:02,.0f}:{minutes:02.0f}:{seconds:05.2f}")
 
     def start(self) -> None:
-        """Method to start (or resume) time updating."""
+        #Method to start (or resume) time updating.
         self.start_time = monotonic()
         self.update_timer.reset()
         self.update_timer.resume()
         self.started = True
 
     def stop(self):
-        """Method to stop the time display updating."""
+        #Method to stop the time display updating.
         self.update_timer.pause()
         self.total += monotonic() - self.start_time
         self.time = self.total
         self.started = False
 
     def reset(self):
-        """Method to reset the time display to zero."""
+        #Method to reset the time display to zero.
         self.total = 0
         self.time = 0
 
@@ -66,7 +69,6 @@ class Scramble(Static):
         yield Timer("00:00")
 
 
-
 class SpeedCubeTimer(App):
 
     CSS_PATH = "styles.css"
@@ -76,21 +78,50 @@ class SpeedCubeTimer(App):
     def compose(self) -> ComposeResult:
         yield Header()
         yield Footer()
+        # yield Static("Grid cell 1\n\nrow-span: 3;\ncolumn-span: 2;", id="static1")
+        yield DataTable(id="time-record")
 
         yield Scramble()
 
+    def on_mount(self) -> None:
+        table = self.query_one(DataTable)
+        with open('solves.csv') as csv_file:
+            rows = csv.reader(csv_file, delimiter=',')
+            line_count = 0
+            for row in rows:
+                if(line_count == 0):
+                    table.add_columns(*row)
+                else:
+                    table.add_row(*row)
+                line_count+=1
+
+
+    
+
     def action_toggle_dark(self) -> None:
-        """An action to toggle dark mode."""
+        #An action to toggle dark mode.
         self.dark = not self.dark
 
     def key_space(self) -> None:
-        """Event handler called when a button is pressed."""
+        #Event handler called when a button is pressed.
         time_display = self.query_one(Timer)
         # time_display.start_stop()
         if time_display.started :
+            # Stop the timer and update the scramble
             time_display.stop()
             scramble_display = self.query_one(ScrambleDisplay)
             scramble_display.new_scramble()
+
+            # update the data table
+            table = self.query_one(DataTable)
+            data_row = (table.row_count+1,time_display.time, 0,0)
+            table.add_row(data_row)
+            table.refresh_row(table.row_count)
+
+            with open('solves.csv', mode='a') as solves_file:
+                solves = csv.writer(solves_file, delimiter=',')
+
+                solves.writerow(data_row)
         else:
             time_display.reset()
             time_display.start()
