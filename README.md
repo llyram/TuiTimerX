@@ -1,8 +1,14 @@
-# TUI Speed cube timer
+# TuiTimerX
 A speed cube timer inspired by cstimer right in your terminal.
 With TUI components made using textual python library.
 
 **This project is still under development**
+
+<!-- Screenshots -->
+## Screenshots
+
+![TuiTimerX-dark](screenshots/screencap-dark.png)
+![TuiTimerX-light](screenshots/screencap-light.png)
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -12,9 +18,10 @@ To get a local copy up and running follow these simple example steps.
 
 ### Installation
 
-1. Clone the repository:
+1. Clone the repository and cd into the working directory:
    ```sh
-   git clone https://github.com/Maryll-castelino/T-cube-timer.git
+   git clone https://github.com/Maryll-castelino/TuiTimerX.git
+   cd TuiTimerX
    ```
 2. Create a python virtual environment:
    ```sh
