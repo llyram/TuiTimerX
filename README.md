@@ -20,7 +20,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Clone the repository and cd into the working directory:
    ```sh
-   git clone https://github.com/Maryll-castelino/TuiTimerX.git
+   git clone https://github.com/llyram/TuiTimerX.git
    cd TuiTimerX
    ```
 2. Create a python virtual environment:
