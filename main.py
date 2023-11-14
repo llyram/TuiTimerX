@@ -117,7 +117,7 @@ class SpeedCubeTimer(App):
                     return 0
                 times = table.get_column_at(1)
                 times = [float(x) for x in times]
-                return "%.2f" % (sum(times[-4:], time) / 5)
+                return "%.2f" % (sum(sorted(times[-4:])[1:-1], time) / 3)
             
             def ao12(table, time):
                 if(table.row_count < 11):
